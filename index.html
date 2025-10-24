@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumi Configurator</title>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Authentication Check -->
+    <script>
+        // Check if user is authenticated
+        if (!sessionStorage.getItem('lumi_authenticated')) {
+            window.location.href = 'login.html';
+        }
+    </script>
+
+    <header>
+        <img src="https://lumielectronics.com/wp-content/uploads/2025/09/logo-06-removebg-preview-removebg-preview.png"
+            height="25">
+        <nav style="margin-left:auto; display: flex; align-items: center; gap: 15px;">
+            <div class="user-profile" id="user-profile" style="display: none;">
+                <img class="user-avatar" id="user-avatar" src="" alt="User Avatar">
+                <!-- Name removed from header -->
+            </div>
+            <button id="myDesignsBtn" class="settings-btn" title="My Designs">
+                <i class="fa-solid fa-gear"></i>
+            </button>
+            <!-- <button id="myDesignsBtn"
+                style="background:#28a745;color:white;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;font-weight:bold;">My
+                Designs</button> -->
+        </nav>
+    </header>
+
+    <main>
+        <h1>Personalise your products</h1>
+
+        <!-- Section 1: Frame Selection -->
+        <section class="section active" id="frame-section">
+            <div class="frame-section">
+                <h3>Choose your quad</h3>
+
+                <div class="frame-grid">
+                    <div class="frame-card active" data-count="1" data-model="2 model box">
+                        <div class="frame-img">
+                            <div class="grey-box"></div>
+                        </div>
+                        <p>1 Quad</p>
+                        <div class="subtitle">2 model box</div>
+                    </div>
+
+                    <div class="frame-card" data-count="2" data-model="4 model box">
+                        <div class="frame-img">
+                            <div class="grey-box"></div>
+                            <div class="grey-box"></div>
+                        </div>
+                        <p>2 Quad</p>
+                        <div class="subtitle">4 model box</div>
+                    </div>
+
+                    <div class="frame-card variant1" data-count="3" data-model="6 model box">
+                        <div class="frame-img">
+                            <div class="grey-box"></div>
+                            <div class="grey-box"></div>
+                            <div class="grey-box"></div>
+                        </div>
+                        <p>3 Quad</p>
+                        <div class="subtitle">6 model box</div>
+                    </div>
+
+                    <div class="frame-card variant2" data-count="3" data-model="8 model box">
+                        <div class="frame-img">
+                            <div class="grey-box"></div>
+                            <div class="grey-box"></div>
+                            <div class="grey-box"></div>
+                        </div>
+                        <p>3 Quad</p>
+                        <div class="subtitle">8 model box</div>
+                    </div>
+
+                    <div class="frame-card" data-count="6" data-model="12 model box">
+                        <div class="frame-img">
+                            <div class="grey-box"></div>
+                            <div class="grey-box"></div>
+                            <div class="grey-box"></div>
+                            <div class="grey-box"></div>
+                            <div class="grey-box"></div>
+                            <div class="grey-box"></div>
+                        </div>
+                        <p>3 Quad + 3 Blank</p>
+                        <div class="subtitle">12 model box</div>
+                    </div>
+                </div>
+
+                <div class="layout-preview">
+                    <h3>Selected Layout Preview</h3>
+                    <div class="preview-container">
+                        <div class="preview-box" id="preview-box"></div>
+                    </div>
+
+                    <!-- NEW CUSTOMIZATION OPTIONS SECTION -->
+                    <div class="customization-options" id="customization-options">
+                        <h4>Customization Type</h4>
+                        <div class="touch-options">
+                            <div class="touch-option active" data-touch-type="4-touch">
+                                <div>4 Touch</div>
+                            </div>
+                            <div class="touch-option" data-touch-type="2-touch">
+                                <div>2 Touch</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>Select Image for Quad</h3>
+                    <div class="image-selection" id="image-selection">
+                        <div class="image-options" id="image-options"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-btn" id="prev-btn-1" disabled>Previous</button>
+                <button class="nav-btn" id="next-btn-1" disabled>Continue</button>
+            </div>
+        </section>
+
+        <!-- Section 2: Glass Color Selection -->
+        <section class="section" id="glass-section">
+            <h3>Choose Glass Color</h3>
+
+            <div class="color-grid">
+                <div class="color-card active" data-color="clear">
+                    <img class="color-img" src="./assets/glass/2.png" alt="Black">
+                    <p>Black</p>
+                </div>
+
+                <div class="color-card" data-color="grey">
+                    <img class="color-img" src="./assets/glass/1.png" alt="White">
+                    <p>White</p>
+                </div>
+
+                <!-- Custom Color Picker -->
+                <div class="color-card custom-color-card" data-color="custom">
+                    <input type="color" id="custom-glass-color" value="#000000"
+                        style="width: 80px; height: 80px; border: none; cursor: pointer;">
+                    <p>Custom Color</p>
+                </div>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-btn" id="prev-btn-2">Previous</button>
+                <button class="nav-btn" id="next-btn-2">Continue</button>
+            </div>
+        </section>
+
+        <!-- Section 3: Frame Color Selection -->
+        <section class="section" id="frame-color-section">
+            <h3>Choose Frame Color</h3>
+
+            <div class="color-grid">
+                <div class="color-card active" data-color="black">
+                    <img class="color-img" src="./assets/frame color/1.png" alt="Silver">
+                    <p>Silver</p>
+                </div>
+
+                <div class="color-card" data-color="white">
+                    <img class="color-img" src="./assets/frame color/2.png" alt="Copper Gold">
+                    <p>Copper Gold</p>
+                </div>
+
+                <div class="color-card" data-color="silver">
+                    <img class="color-img" src="./assets/frame color/3.png" alt="Grey">
+                    <p>Grey</p>
+                </div>
+
+                <div class="color-card" data-color="gold">
+                    <img class="color-img" src="./assets/frame color/4.png" alt="Black">
+                    <p>Black</p>
+                </div>
+
+                <div class="color-card" data-color="brown">
+                    <img class="color-img" src="./assets/frame color/5.png" alt="Gold">
+                    <p>Gold</p>
+                </div>
+
+                <div class="color-card" data-color="brown">
+                    <img class="color-img" src="./assets/frame color/6.png" alt="Rose Gold">
+                    <p>Rose Gold</p>
+                </div>
+
+                <div class="color-card" data-color="brown">
+                    <img class="color-img" src="./assets/frame color/7.png" alt="Light Gold">
+                    <p>Light Gold</p>
+                </div>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-btn" id="prev-btn-3">Previous</button>
+                <button class="nav-btn" id="next-btn-3">Continue</button>
+            </div>
+        </section>
+
+        <!-- Section 4: Summary -->
+        <section class="section" id="summary-section">
+            <h3>Review Your Configuration</h3>
+
+            <!-- Watermark elements -->
+            <div class="watermark watermark-1">LUMI</div>
+            <div class="watermark watermark-2">LUMI</div>
+            <div class="watermark watermark-3">LUMI</div>
+
+            <div class="summary-container">
+                <div class="summary-preview">
+                    <h4>Final Preview</h4>
+                    <div class="preview-container">
+                        <div class="preview-box" id="final-preview-box"></div>
+                    </div>
+                </div>
+
+                <div class="summary-details">
+                    <h4>Configuration Details</h4>
+                    <table class="summary-table">
+                        <tr>
+                            <th>Configuration Item</th>
+                            <th>Selected Option</th>
+                        </tr>
+                        <tr>
+                            <td>Model of Box</td>
+                            <td id="summary-box-model">2 model box</td>
+                        </tr>
+                        <tr>
+                            <td>Frame Type</td>
+                            <td id="summary-frame-type">1 Quad</td>
+                        </tr>
+                        <tr>
+                            <td>Glass Color</td>
+                            <td id="summary-glass-color">Clear Glass</td>
+                        </tr>
+                        <tr>
+                            <td>Frame Color</td>
+                            <td id="summary-frame-color">Black</td>
+                        </tr>
+                        <tr>
+                            <td>Images</td>
+                            <td id="summary-images">None selected</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <button class="print-btn" id="print-btn">Print Configuration</button>
+            <button class="nav-btn" id="saveDesignBtn" style="background:#0069d9;margin:auto;display:block;">Save Configurator</button>
+
+        </section>
+    </main>
+
+    <!-- Modal for Image Selection -->
+    <div class="modal" id="image-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Select an Image</h2>
+                <button class="close-modal">&times;</button>
+            </div>
+
+            <div class="gallery-grid" id="gallery-grid">
+                <!-- Gallery items will be dynamically added here -->
+            </div>
+
+            <!-- Upload Section inside Modal - Only shown for customize gallery -->
+            <div class="upload-section" id="upload-section" style="display: none;">
+                <h3>Upload Your Own Image</h3>
+                <input type="file" id="file-upload" accept="image/*" style="display: none;">
+                <button class="upload-btn" id="upload-trigger">Upload Image</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; Lumi Electronics. All rights reserved.</p>
+            <div class="footer-links">
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript Files -->
+    <script src="config.js"></script>
+    <script>
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+    </script>
+    <script src="auth.js"></script>
+    <script src="main.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</body>
+
+</html>

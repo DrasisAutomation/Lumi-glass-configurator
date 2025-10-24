@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumi Configurator - Login</title>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+</head>
+<style>
+    * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.login-container {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    max-width: 450px;
+    width: 100%;
+    text-align: center;
+}
+
+.login-header {
+    margin-bottom: 30px;
+}
+
+.login-header img {
+    margin-bottom: 15px;
+}
+
+.login-header h1 {
+    color: #1e3a5f;
+    font-size: 28px;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.login-header p {
+    color: #666;
+    font-size: 16px;
+}
+
+/* User Profile Section */
+.user-profile-section {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+    border: 1px solid #e1e5e9;
+}
+
+.user-profile-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-avatar-container {
+    position: relative;
+}
+
+.user-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #1971c2;
+}
+
+.user-info {
+    flex: 1;
+    text-align: left;
+}
+
+.user-name {
+    color: #1e3a5f;
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 2px;
+}
+
+.user-email {
+    color: #666;
+    font-size: 14px;
+}
+
+.logout-btn {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+    background: #c0392b;
+    transform: translateY(-1px);
+}
+
+.login-content {
+    margin: 30px 0;
+}
+
+.google-signin-btn {
+    width: 100%;
+    padding: 14px;
+    background: #fff;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 16px;
+    color: #333;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.google-signin-btn:hover {
+    border-color: #1971c2;
+    box-shadow: 0 4px 12px rgba(25, 113, 194, 0.15);
+    transform: translateY(-1px);
+}
+
+.google-icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* OTP Section */
+.otp-section {
+    border-top: 1px solid #e1e5e9;
+    padding-top: 25px;
+    margin-top: 25px;
+}
+
+.otp-info h3 {
+    color: #1e3a5f;
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+.otp-info p {
+    color: #666;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 25px;
+}
+
+.otp-inputs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 25px 0;
+}
+
+.otp-input {
+    width: 45px;
+    height: 45px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.otp-input:focus {
+    border-color: #1971c2;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(25, 113, 194, 0.1);
+    outline: none;
+}
+
+.otp-input.filled {
+    border-color: #1971c2;
+    background: white;
+}
+
+.otp-timer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.otp-countdown {
+    color: #e74c3c;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.resend-otp-btn {
+    background: transparent;
+    border: none;
+    color: #1971c2;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+    text-decoration: underline;
+}
+
+.resend-otp-btn:hover:not(:disabled) {
+    color: #155a9c;
+}
+
+.resend-otp-btn:disabled {
+    color: #ccc;
+    cursor: not-allowed;
+    text-decoration: none;
+}
+
+.verify-btn {
+    width: 100%;
+    padding: 14px;
+    background: #1971c2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    margin-bottom: 15px;
+}
+
+.verify-btn:hover:not(:disabled) {
+    background: #155a9c;
+    transform: translateY(-1px);
+}
+
+.verify-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.signin-another-account-btn {
+    width: 100%;
+    padding: 12px;
+    background: transparent;
+    border: 2px solid #1971c2;
+    color: #1971c2;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.signin-another-account-btn:hover {
+    background: #1971c2;
+    color: white;
+}
+
+.auth-error {
+    background: #fee;
+    color: #e74c3c;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #f5c6cb;
+    margin: 15px 0;
+    font-size: 14px;
+}
+
+/* Loading Section */
+.loading-section {
+    padding: 40px 0;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e1e5e9;
+    border-top: 4px solid #1971c2;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-section p {
+    color: #666;
+    font-size: 14px;
+}
+
+.login-footer {
+    border-top: 1px solid #e1e5e9;
+    padding-top: 20px;
+    margin-top: 20px;
+}
+
+.login-footer p {
+    color: #999;
+    font-size: 12px;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+    .login-container {
+        padding: 30px 20px;
+        margin: 10px;
+    }
+
+    .login-header h1 {
+        font-size: 24px;
+    }
+
+    .user-profile-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+
+    .user-info {
+        text-align: center;
+    }
+
+    .otp-input {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+
+    .otp-timer {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+}
+</style>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <img src="https://lumielectronics.com/wp-content/uploads/2025/09/logo-06-removebg-preview-removebg-preview.png"
+                height="40" alt="Lumi Electronics">
+            <h1>Lumi Configurator</h1>
+            <p>Please sign in to access the product configurator</p>
+        </div>
+
+        <!-- User Profile Section (Hidden by default) -->
+        <div class="user-profile-section" id="user-profile-section" style="display: none;">
+            <div class="user-profile-header">
+                <div class="user-avatar-container">
+                    <img class="user-avatar" id="user-avatar" src="" alt="User Avatar">
+                </div>
+                <div class="user-info">
+                    <div class="user-name" id="user-name">User Name</div>
+                    <div class="user-email" id="user-email">user@example.com</div>
+                </div>
+                <button class="logout-btn" id="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+
+        <div class="login-content">
+            <button class="google-signin-btn" id="google-signin-btn">
+                <svg class="google-icon" viewBox="0 0 24 24" width="18" height="18" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#4285F4"
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                    <path fill="#34A853"
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                    <path fill="#FBBC05"
+                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                    <path fill="#EA4335"
+                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                </svg>
+                Continue with Google
+            </button>
+
+            <div class="otp-section" id="otp-section" style="display: none;">
+                <div class="otp-info">
+                    <h3>Verification Required</h3>
+                    <p>We've sent a one-time password (OTP) to the Lumi Administrator. Please contact the admin to obtain the OTP and proceed.</p>
+                </div>
+
+                <div class="otp-inputs">
+                    <input type="text" class="otp-input" maxlength="1" data-index="0">
+                    <input type="text" class="otp-input" maxlength="1" data-index="1">
+                    <input type="text" class="otp-input" maxlength="1" data-index="2">
+                    <input type="text" class="otp-input" maxlength="1" data-index="3">
+                    <input type="text" class="otp-input" maxlength="1" data-index="4">
+                    <input type="text" class="otp-input" maxlength="1" data-index="5">
+                </div>
+
+                <div class="otp-timer">
+                    <div class="otp-countdown" id="otp-countdown">OTP expires in: 15:00</div>
+                    <button class="resend-otp-btn" id="resend-otp-btn" disabled>Resend OTP</button>
+                </div>
+
+                <button class="verify-btn" id="verify-btn" disabled>Verify OTP</button>
+
+                <div class="auth-error" id="auth-error" style="display: none;"></div>
+
+                <button class="signin-another-account-btn" id="signin-another-account-btn">
+                    Sign in with another account
+                </button>
+            </div>
+
+            <div class="loading-section" id="loading-section" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p>Checking authentication status...</p>
+            </div>
+        </div>
+
+        <div class="login-footer">
+            <p>&copy; 2024 Lumi Electronics. All rights reserved.</p>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="config.js"></script>
+    <script>
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+    </script>
+    <script src="login-auth.js"></script>
+</body>
+
+</html>
