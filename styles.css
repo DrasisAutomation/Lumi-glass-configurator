@@ -11,6 +11,9 @@
     align-items: center;
     z-index: 10000;
 }
+.layout-preview h3{
+   margin-bottom: 20px;
+}
 
 .auth-modal {
     background: white;
