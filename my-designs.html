@@ -7,459 +7,545 @@
     <meta name="description" content="My Lumi Design Configurations">
     <meta charset="UTF-8">
     <title>My Designs</title>
-    <style>
+<style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background: #fff;
+        color: #222;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    header {
+        display: flex;
+        align-items: center;
+        background: #1e3a5f;
+        color: white;
+        padding: 10px 40px;
+    }
+
+    h1 {
+        text-align: center;
+        margin: 40px 0 20px;
+        color: #1e3a5f;
+    }
+
+    .design-grid {
+        display: grid;
+        grid-template-columns: repeat(1, minmax(290px, 1fr));
+        gap: 30px;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .design-card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+    }
+
+    /* === Summary Section Styling (EXACT SAME as index) === */
+    .summary-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 40px;
+        margin-top: 30px;
+        padding: 30px;
+        position: relative;
+    }
+
+    .summary-preview {
+        flex: 1;
+        min-width: 260px;
+        position: relative;
+    }
+
+    .summary-details {
+        flex: 1;
+        min-width: 260px;
+    }
+
+    .summary-preview h4,
+    .summary-details h4 {
+        color: #1e3a5f;
+        margin-bottom: 20px;
+        font-size: 1.4rem;
+        text-align: center;
+        border-bottom: 2px solid #1971c2;
+        padding-bottom: 10px;
+    }
+
+    /* === EXACT PREVIEW BOX STYLES from index.html === */
+    .preview-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .preview-box {
+        display: grid;
+        gap: 10px;
+        justify-content: center;
+        padding: 20px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border: 1px solid #ddd;
+        align-items: center;
+    }
+
+    /* Frame layout classes - EXACT SQUARE DIMENSIONS from index */
+    .preview-box.frame-1 {
+        grid-template-columns: repeat(1, 1fr);
+        width: 90px;
+        height: 90px;
+    }
+
+    .preview-box.frame-2 {
+        grid-template-columns: repeat(2, 1fr);
+        width: 170px;
+        height: 90px;
+    }
+
+    .preview-box.frame-3 {
+        grid-template-columns: repeat(3, 1fr);
+        width: 270px;
+        height: 90px;
+    }
+
+    .preview-box.frame-6 {
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        width: 270px;
+        height: 180px;
+    }
+
+    /* Grey box styles - EXACT from index */
+    .preview-box .grey-box {
+        width: 80px;
+        height: 80px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #666;
+        border: 1px solid #495057;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: 0.2s;
+        background: #e9ecef;
+        position: relative;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .preview-box .grey-box.has-content {
+        background: none !important;
+        border: none !important;
+    }
+
+    .preview-box .grey-box img:not(.customize-spot img) {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+
+    /* === EXACT Customize Grid from index === */
+    .preview-box .grey-box .customize-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        gap: 2px;
+        width: 100%;
+        height: 100%;
+        justify-items: center;
+        align-items: center;
+        padding: 2px;
+        box-sizing: border-box;
+    }
+
+    .preview-box .grey-box .customize-grid.two-touch {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: 1fr;
+        gap: 2px;
+        padding: 2px;
+    }
+
+    .preview-box .grey-box .customize-spot {
+        display: flex;
+        height: 25px;
+        width: 25px;
+        justify-content: center;
+        align-items: center;
+        border-radius: 2px;
+        background: rgba(255, 255, 255, 0.8);
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .preview-box .grey-box .customize-spot:hover {
+        border-color: #1971c2;
+        background: #e7f3ff;
+    }
+
+    .preview-box .grey-box .customize-spot img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 2px;
+    }
+
+    .preview-box .grey-box .plus-icon {
+        font-size: 14px;
+        color: #ff0000;
+        font-weight: bold;
+    }
+
+    /* === EXACT Accessory Split from index === */
+    .preview-box .grey-box .accessory-split {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        background: none;
+        border: none;
+    }
+
+    .preview-box .grey-box .accessory-half {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        transition: 0.2s;
+    }
+
+    .preview-box .grey-box .accessory-half.left {
+        border-right: 1px dashed #ccc;
+    }
+
+    .preview-box .grey-box .accessory-half.right {
+        border-left: 1px dashed #ccc;
+    }
+
+    .preview-box .grey-box .accessory-half.no-border {
+        border: none !important;
+    }
+
+    .preview-box .grey-box .accessory-half img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* === Summary Table === */
+    .summary-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .summary-table th,
+    .summary-table td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+    }
+
+    .summary-table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+    }
+
+    .summary-table td:first-child {
+        font-weight: 600;
+        color: #495057;
+        width: 40%;
+    }
+
+    /* === Watermark === */
+    .watermark {
+        position: absolute;
+        font-size: 80px;
+        font-weight: bold;
+        color: rgba(30, 58, 95, 0.1);
+        z-index: -1;
+        pointer-events: none;
+        transform: rotate(-45deg);
+    }
+
+    .watermark-1 {
+        top: 20%;
+        left: 10%;
+    }
+
+    .watermark-2 {
+        top: 50%;
+        left: 60%;
+    }
+
+    .watermark-3 {
+        top: 80%;
+        left: 20%;
+    }
+
+    /* === Actions === */
+    .actions {
+        display: flex;
+        justify-content: space-between;
+        padding: 20px 30px;
+        background: #f8f9fa;
+        border-top: 1px solid #e9ecef;
+    }
+
+    button {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.2s;
+    }
+
+    .deleteBtn {
+        background: #dc3545;
+        color: white;
+    }
+
+    .deleteBtn:hover {
+        background: #c82333;
+    }
+
+    .printAll {
+        background: #28a745;
+        color: white;
+        display: block;
+        margin: 30px auto;
+        padding: 12px 30px;
+        font-size: 16px;
+    }
+
+    .printAll:hover {
+        background: #218838;
+    }
+
+    .backBtn {
+        background: #1e3a5f;
+        color: white;
+        margin: 20px;
+        padding: 10px 20px;
+    }
+
+    .backBtn:hover {
+        background: #155a9c;
+    }
+
+    /* === Print Styles === */
+    @media print {
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #fff;
-            color: #222;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            background: white !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            display: block !important;
         }
 
-        header {
-            display: flex;
-            align-items: center;
-            background: #1e3a5f;
-            color: white;
-            padding: 10px 40px;
-        }
-
+        header,
+        .backBtn,
+        .printAll,
+        .actions,
         h1 {
-            text-align: center;
-            margin: 40px 0 20px;
-            color: #1e3a5f;
+            display: none !important;
         }
 
         .design-grid {
-            display: grid;
-            grid-template-columns: repeat(1, minmax(290px, 1fr));
-            gap: 30px;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
+            display: block !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            gap: 0 !important;
         }
 
         .design-card {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            border: 1px solid #e9ecef;
-            overflow: hidden;
+            display: block !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 auto 20mm auto !important;
+            padding: 15mm !important;
+            box-sizing: border-box !important;
+            border: 1px solid #000 !important;
+            box-shadow: none !important;
+            background: #fff !important;
+            page-break-inside: avoid !important;
+            page-break-after: auto !important;
+            break-inside: avoid !important;
         }
 
-        /* === Summary Section Styling (Same as index) === */
-        .summary-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 40px;
-            margin-top: 30px;
-            padding: 30px;
-        }
-
-
-        .summary-preview {
-            flex: 1;
-            min-width: 260px;
-            position: relative;
-        }
-
-        .summary-details {
-            flex: 1;
-            min-width: 260px;
-        }
-
-        .summary-preview h4,
-        .summary-details h4 {
-            color: #1e3a5f;
-            margin-bottom: 20px;
-            font-size: 1.4rem;
-            text-align: center;
-            border-bottom: 2px solid #1971c2;
-            padding-bottom: 10px;
-        }
-
-        /* === Preview Box Styles (EXACT SAME as index) === */
-        .preview-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        .preview-box {
-            display: grid;
-            gap: 10px;
-            justify-content: center;
-            padding: 20px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            border: 1px solid #ddd;
-        }
-
-        /* Fix 1-frame preview image size */
-        .preview-box.frame-1 .grey-box img {
-            width: 80px;
-            /* normal width */
-            height: 80px;
-            /* normal height */
-            object-fit: contain;
-            /* keep aspect ratio */
-            border-radius: 4px;
-            /* optional, same as other images */
-        }
-
-        .preview-box.frame-1 {
-            grid-template-columns: repeat(1, 1fr);
-        }
-
-        .preview-box.frame-2 {
-            grid-template-columns: repeat(2, 1fr);
-        }
-
-        .preview-box.frame-3 {
-            grid-template-columns: repeat(3, 1fr);
-        }
-
-        .preview-box.frame-6 {
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(2, 1fr);
-        }
-
-        .preview-box .grey-box {
-            width: 80px;
-            height: 80px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #666;
-            border: 1px solid #495057;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: 0.2s;
-            background: #e9ecef;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .preview-box .grey-box.has-content {
-            background: none !important;
-            border: none !important;
-        }
-
-        .preview-box .grey-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 4px;
-        }
-
-        /* === Customize Grid (4 corners) === */
-        .customize-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            grid-template-rows: repeat(2, 1fr);
-            gap: 0px;
-            width: 100%;
-            height: 100%;
-            justify-items: center;
-            align-items: center;
-            padding: 5px;
-            box-sizing: border-box;
-        }
-
-        /* === 2-Touch Grid Layout === */
-        .customize-grid.two-touch {
-            grid-template-columns: repeat(2, 1fr);
-            grid-template-rows: 1fr;
-            align-items: center;
-        }
-
-        .customize-spot {
-            display: flex;
-            height: 35px;
-            width: 35px;
-            justify-content: center;
-            align-items: center;
-            border-radius: 2px;
-            background: rgba(255, 255, 255, 0.8);
-        }
-
-        .customize-spot img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 2px;
-        }
-
-        /* === Accessory Split === */
-        .accessory-split {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            background: none;
-            border: none;
-        }
-
-        .accessory-half {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: 0.2s;
-        }
-
-        .accessory-half.left {
-            border-right: 1px dashed #ccc;
-        }
-
-        .accessory-half.right {
-            border-left: 1px dashed #ccc;
-        }
-
-        .accessory-half.no-border {
-            border: none !important;
-        }
-
-        .accessory-half img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* === Summary Table === */
+        .summary-container,
+        .summary-preview,
+        .summary-details,
+        .preview-container,
+        .preview-box,
         .summary-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        .summary-container {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            gap: 15px !important;
+        }
+
+        .summary-preview,
+        .summary-details {
+            width: 100% !important;
+            margin-bottom: 15px !important;
+        }
+
+        .summary-table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            font-size: 13px !important;
+            table-layout: fixed !important;
         }
 
         .summary-table th,
         .summary-table td {
-            border: 1px solid #ddd;
-            padding: 12px;
-            text-align: left;
+            padding: 6px 10px !important;
+            border: 1px solid #555 !important;
         }
 
-        .summary-table th {
-            background-color: #f8f9fa;
-            font-weight: 600;
-        }
-
-        .summary-table td:first-child {
-            font-weight: 600;
-            color: #495057;
-            width: 40%;
-        }
-
-        /* === Watermark === */
         .watermark {
-            position: absolute;
-            font-size: 80px;
-            font-weight: bold;
-            color: rgba(30, 58, 95, 0.1);
-            z-index: -1;
-            pointer-events: none;
-            transform: rotate(-45deg);
+            color: rgba(30, 58, 95, 0.06) !important;
+            font-size: 110px !important;
         }
 
-        .watermark-1 {
-            top: 20%;
-            left: 10%;
+        @page {
+            margin: 15mm;
+            size: A4 portrait;
         }
+    }
 
-        .watermark-2 {
-            top: 50%;
-            left: 60%;
-        }
+    .empty-message {
+        text-align: center;
+        color: #666;
+        font-size: 1.2rem;
+        margin: 50px 0;
+    }
 
-        .watermark-3 {
-            top: 80%;
-            left: 20%;
-        }
+    /* === Fix single image centering === */
+    .preview-box:has(.grey-box:nth-child(1):last-child) {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        gap: 0 !important;
+    }
 
-        /* === Actions === */
-        .actions {
-            display: flex;
-            justify-content: space-between;
-            padding: 20px 30px;
-            background: #f8f9fa;
-            border-top: 1px solid #e9ecef;
-        }
+    .preview-box:has(.grey-box:nth-child(1):last-child) .grey-box {
+        margin: 0 auto !important;
+        width: auto !important;
+        height: auto !important;
+        max-width: 100%;
+        max-height: 100%;
+    }
 
-        button {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.2s;
-        }
+    .preview-container .preview-box {
+        padding: 10px !important;
+    }
 
-        .deleteBtn {
-            background: #dc3545;
-            color: white;
-        }
+    /* === Active state styling from index === */
+    .preview-box .grey-box.active {
+        border: 2px solid #1971c2 !important;
+        background-color: #e7f3ff !important;
+        box-shadow: 0 0 5px rgba(25, 113, 194, 0.5);
+    }
 
-        .deleteBtn:hover {
-            background: #c82333;
-        }
+    .preview-box .grey-box .customize-spot.active {
+        border: 2px solid #1971c2 !important;
+        background-color: #e7f3ff !important;
+        box-shadow: 0 0 5px rgba(25, 113, 194, 0.5);
+    }
 
-        .printAll {
-            background: #28a745;
-            color: white;
-            display: block;
-            margin: 30px auto;
-            padding: 12px 30px;
-            font-size: 16px;
-        }
+    /* === Restriction indicators from index === */
+    .preview-box .grey-box[data-restriction]::before {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+    }
 
-        .printAll:hover {
-            background: #218838;
-        }
+    .preview-box .grey-box[data-restriction="regular-customize"]::before {
+        background: #1971c2;
+    }
 
-        .backBtn {
-            background: #1e3a5f;
-            color: white;
-            margin: 20px;
-            padding: 10px 20px;
-        }
+    .preview-box .grey-box[data-restriction="accessory-only"]::before {
+        background: #28a745;
+    }
 
-        .backBtn:hover {
-            background: #155a9c;
-        }
+    /* === EXACT Customize Grid from index === */
+.preview-box .grey-box .customize-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 8px;
+    width: 100%;
+    height: 100%;
+    justify-items: center;
+    align-items: center;
+    padding: 10px;
+    box-sizing: border-box;
+    place-items: center;
+}
 
-        /* === Print Styles === */
-        /* === Print Styles === */
-        @media print {
+.preview-box .grey-box .customize-grid.two-touch {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: 1fr;
+    gap: 15px;
+    padding: 10px;
+}
 
-            /* Reset body for printing */
-            body {
-                background: white !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                display: block !important;
-            }
+.preview-box .grey-box .customize-spot {
+    display: flex;
+    height: 25px;
+    width: 25px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    transition: 0.2s;
+}
 
-            /* Hide UI elements that shouldn't print */
-            header,
-            .backBtn,
-            .printAll,
-            .actions,
-            h1 {
-                display: none !important;
-            }
+.preview-box .grey-box .customize-spot:hover {
+    border-color: #1971c2;
+    background: #e7f3ff;
+}
 
-            /* Show only the design grid and cards */
-            .design-grid {
-                display: block !important;
-                max-width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                gap: 0 !important;
-            }
+.preview-box .grey-box .customize-spot img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 2px;
+}
 
-            .design-card {
-                display: block !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                margin: 0 auto 20mm auto !important;
-                padding: 15mm !important;
-                box-sizing: border-box !important;
-                border: 1px solid #000 !important;
-                box-shadow: none !important;
-                background: #fff !important;
-                page-break-inside: avoid !important;
-                page-break-after: auto !important;
-                break-inside: avoid !important;
-            }
-
-            /* Ensure content is visible */
-            .summary-container,
-            .summary-preview,
-            .summary-details,
-            .preview-container,
-            .preview-box,
-            .summary-table {
-                visibility: visible !important;
-                opacity: 1 !important;
-            }
-
-            /* Let summary sections adapt naturally */
-            .summary-container {
-                display: flex !important;
-                flex-direction: column !important;
-                align-items: stretch !important;
-                width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                gap: 15px !important;
-            }
-
-            .summary-preview,
-            .summary-details {
-                width: 100% !important;
-                margin-bottom: 15px !important;
-            }
-
-            .summary-table {
-                width: 100% !important;
-                border-collapse: collapse !important;
-                font-size: 13px !important;
-                table-layout: fixed !important;
-            }
-
-            .summary-table th,
-            .summary-table td {
-                padding: 6px 10px !important;
-                border: 1px solid #555 !important;
-            }
-
-            /* Watermarks lighter for print */
-            .watermark {
-                color: rgba(30, 58, 95, 0.06) !important;
-                font-size: 110px !important;
-            }
-
-            /* Page setup */
-            @page {
-                margin: 15mm;
-                size: A4 portrait;
-            }
-        }
-
-
-        .empty-message {
-            text-align: center;
-            color: #666;
-            font-size: 1.2rem;
-            margin: 50px 0;
-        }
-
-        /* === Fix unwanted gaps in all preview layouts when only one image === */
-        .preview-box:has(.grey-box:nth-child(1):last-child) {
-            display: flex !important;
-            justify-content: center !important;
-            align-items: center !important;
-            gap: 0 !important;
-        }
-
-        /* Center the single image perfectly */
-        .preview-box:has(.grey-box:nth-child(1):last-child) .grey-box {
-            margin: 0 auto !important;
-            width: auto !important;
-            height: auto !important;
-            max-width: 100%;
-            max-height: 100%;
-        }
-
-        /* Ensure no grid padding causes visual offset */
-        .preview-container .preview-box {
-            padding: 10px !important;
-        }
-    </style>
+.preview-box .grey-box .plus-icon {
+    font-size: 14px;
+    color: #ff0000;
+    font-weight: bold;
+}
+</style>
 </head>
 
 <body>
