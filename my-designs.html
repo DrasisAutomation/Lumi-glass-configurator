@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Add this in your head section -->
+    <meta name="subject" content="Lumi Designs">
+    <meta name="description" content="My Lumi Design Configurations">
+    <meta charset="UTF-8">
+    <title>My Designs</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #fff;
+            color: #222;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            background: #1e3a5f;
+            color: white;
+            padding: 10px 40px;
+        }
+
+        h1 {
+            text-align: center;
+            margin: 40px 0 20px;
+            color: #1e3a5f;
+        }
+
+        .design-grid {
+            display: grid;
+            grid-template-columns: repeat(1, minmax(290px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .design-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e9ecef;
+            overflow: hidden;
+        }
+
+        /* === Summary Section Styling (Same as index) === */
+        .summary-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            margin-top: 30px;
+            padding: 30px;
+        }
+
+
+        .summary-preview {
+            flex: 1;
+            min-width: 260px;
+            position: relative;
+        }
+
+        .summary-details {
+            flex: 1;
+            min-width: 260px;
+        }
+
+        .summary-preview h4,
+        .summary-details h4 {
+            color: #1e3a5f;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            text-align: center;
+            border-bottom: 2px solid #1971c2;
+            padding-bottom: 10px;
+        }
+
+        /* === Preview Box Styles (EXACT SAME as index) === */
+        .preview-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .preview-box {
+            display: grid;
+            gap: 10px;
+            justify-content: center;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid #ddd;
+        }
+
+        /* Fix 1-frame preview image size */
+        .preview-box.frame-1 .grey-box img {
+            width: 80px;
+            /* normal width */
+            height: 80px;
+            /* normal height */
+            object-fit: contain;
+            /* keep aspect ratio */
+            border-radius: 4px;
+            /* optional, same as other images */
+        }
+
+        .preview-box.frame-1 {
+            grid-template-columns: repeat(1, 1fr);
+        }
+
+        .preview-box.frame-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .preview-box.frame-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .preview-box.frame-6 {
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+        }
+
+        .preview-box .grey-box {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #666;
+            border: 1px solid #495057;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.2s;
+            background: #e9ecef;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .preview-box .grey-box.has-content {
+            background: none !important;
+            border: none !important;
+        }
+
+        .preview-box .grey-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        /* === Customize Grid (4 corners) === */
+        .customize-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 0px;
+            width: 100%;
+            height: 100%;
+            justify-items: center;
+            align-items: center;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+
+        /* === 2-Touch Grid Layout === */
+        .customize-grid.two-touch {
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: 1fr;
+            align-items: center;
+        }
+
+        .customize-spot {
+            display: flex;
+            height: 35px;
+            width: 35px;
+            justify-content: center;
+            align-items: center;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .customize-spot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 2px;
+        }
+
+        /* === Accessory Split === */
+        .accessory-split {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            background: none;
+            border: none;
+        }
+
+        .accessory-half {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: 0.2s;
+        }
+
+        .accessory-half.left {
+            border-right: 1px dashed #ccc;
+        }
+
+        .accessory-half.right {
+            border-left: 1px dashed #ccc;
+        }
+
+        .accessory-half.no-border {
+            border: none !important;
+        }
+
+        .accessory-half img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* === Summary Table === */
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .summary-table th,
+        .summary-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .summary-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .summary-table td:first-child {
+            font-weight: 600;
+            color: #495057;
+            width: 40%;
+        }
+
+        /* === Watermark === */
+        .watermark {
+            position: absolute;
+            font-size: 80px;
+            font-weight: bold;
+            color: rgba(30, 58, 95, 0.1);
+            z-index: -1;
+            pointer-events: none;
+            transform: rotate(-45deg);
+        }
+
+        .watermark-1 {
+            top: 20%;
+            left: 10%;
+        }
+
+        .watermark-2 {
+            top: 50%;
+            left: 60%;
+        }
+
+        .watermark-3 {
+            top: 80%;
+            left: 20%;
+        }
+
+        /* === Actions === */
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .deleteBtn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .deleteBtn:hover {
+            background: #c82333;
+        }
+
+        .printAll {
+            background: #28a745;
+            color: white;
+            display: block;
+            margin: 30px auto;
+            padding: 12px 30px;
+            font-size: 16px;
+        }
+
+        .printAll:hover {
+            background: #218838;
+        }
+
+        .backBtn {
+            background: #1e3a5f;
+            color: white;
+            margin: 20px;
+            padding: 10px 20px;
+        }
+
+        .backBtn:hover {
+            background: #155a9c;
+        }
+
+        /* === Print Styles === */
+        /* === Print Styles === */
+        @media print {
+
+            /* Reset body for printing */
+            body {
+                background: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                display: block !important;
+            }
+
+            /* Hide UI elements that shouldn't print */
+            header,
+            .backBtn,
+            .printAll,
+            .actions,
+            h1 {
+                display: none !important;
+            }
+
+            /* Show only the design grid and cards */
+            .design-grid {
+                display: block !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                gap: 0 !important;
+            }
+
+            .design-card {
+                display: block !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 auto 20mm auto !important;
+                padding: 15mm !important;
+                box-sizing: border-box !important;
+                border: 1px solid #000 !important;
+                box-shadow: none !important;
+                background: #fff !important;
+                page-break-inside: avoid !important;
+                page-break-after: auto !important;
+                break-inside: avoid !important;
+            }
+
+            /* Ensure content is visible */
+            .summary-container,
+            .summary-preview,
+            .summary-details,
+            .preview-container,
+            .preview-box,
+            .summary-table {
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
+
+            /* Let summary sections adapt naturally */
+            .summary-container {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: stretch !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                gap: 15px !important;
+            }
+
+            .summary-preview,
+            .summary-details {
+                width: 100% !important;
+                margin-bottom: 15px !important;
+            }
+
+            .summary-table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                font-size: 13px !important;
+                table-layout: fixed !important;
+            }
+
+            .summary-table th,
+            .summary-table td {
+                padding: 6px 10px !important;
+                border: 1px solid #555 !important;
+            }
+
+            /* Watermarks lighter for print */
+            .watermark {
+                color: rgba(30, 58, 95, 0.06) !important;
+                font-size: 110px !important;
+            }
+
+            /* Page setup */
+            @page {
+                margin: 15mm;
+                size: A4 portrait;
+            }
+        }
+
+
+        .empty-message {
+            text-align: center;
+            color: #666;
+            font-size: 1.2rem;
+            margin: 50px 0;
+        }
+
+        /* === Fix unwanted gaps in all preview layouts when only one image === */
+        .preview-box:has(.grey-box:nth-child(1):last-child) {
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            gap: 0 !important;
+        }
+
+        /* Center the single image perfectly */
+        .preview-box:has(.grey-box:nth-child(1):last-child) .grey-box {
+            margin: 0 auto !important;
+            width: auto !important;
+            height: auto !important;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        /* Ensure no grid padding causes visual offset */
+        .preview-container .preview-box {
+            padding: 10px !important;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Authentication Check -->
+    <script>
+        // Check if user is authenticated
+        if (!sessionStorage.getItem('lumi_authenticated')) {
+            window.location.href = 'login.html';
+        }
+    </script>
+
+    <header>
+        <img src="https://lumielectronics.com/wp-content/uploads/2025/09/logo-06-removebg-preview-removebg-preview.png"
+            height="25">
+        <nav style="margin-left:auto;">
+            <button onclick="window.location.href='index.html'"
+                style="background:#28a745;color:white;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;font-weight:bold;">
+                New Design
+            </button>
+        </nav>
+    </header>
+
+    <h1>My Saved Designs</h1>
+
+    <button class="backBtn" onclick="window.location.href='index.html'">← Back to Configurator</button>
+
+    <div class="design-grid" id="designGrid"></div>
+
+    <button id="print-btnn" class="printAll">Print / Download</button>
+
+    <script>
+        const designGrid = document.getElementById('designGrid');
+        const designs = JSON.parse(localStorage.getItem('myDesigns') || '[]');
+
+        if (designs.length === 0) {
+            designGrid.innerHTML = '<div class="empty-message">No designs saved yet. Create your first design in the configurator!</div>';
+        } else {
+            designs.forEach(design => {
+                const card = document.createElement('div');
+                card.className = 'design-card';
+
+                // Create the exact same summary section as in index.html
+                card.innerHTML = `
+          <div class="summary-container">
+            <!-- Watermarks -->
+            <div class="watermark watermark-1">LUMI</div>
+            <div class="watermark watermark-2">LUMI</div>
+            <div class="watermark watermark-3">LUMI</div>
+
+            <div class="summary-preview">
+              <h4>Final Preview</h4>
+              <div class="preview-container">
+                <div class="preview-box ${design.layoutClass}" id="preview-${design.id}"></div>
+              </div>
+            </div>
+
+            <div class="summary-details">
+              <h4>Configuration Details</h4>
+              <table class="summary-table">
+                <tr>
+                  <th>Configuration Item</th>
+                  <th>Selected Option</th>
+                </tr>
+                <tr>
+                  <td>Model of Box</td>
+                  <td>${design.model}</td>
+                </tr>
+                <tr>
+                  <td>Frame Type</td>
+                  <td>${design.frameType}</td>
+                </tr>
+                <tr>
+                  <td>Glass Color</td>
+                  <td>${design.glassColor}</td>
+                </tr>
+                <tr>
+                  <td>Frame Color</td>
+                  <td>${design.frameColor}</td>
+                </tr>
+                <tr>
+                  <td>Images</td>
+                  <td>${getImagesSummary(design)}</td>
+                </tr>
+                <tr>
+  <td>Date & Time</td>
+  <td>${design.fileName}</td>
+</tr>
+              </table>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="deleteBtn" onclick="deleteDesign('${design.id}')">Delete Design</button>
+          </div>
+        `;
+
+                // Build the preview box with exact same structure as index.html
+                const previewBox = card.querySelector(`#preview-${design.id}`);
+                buildPreviewBox(previewBox, design);
+
+                designGrid.appendChild(card);
+            });
+        }
+
+        function buildPreviewBox(previewBox, design) {
+            if (design.previewHTML) {
+                // Extract only the inner grey boxes from saved previewHTML
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = design.previewHTML;
+                const innerPreview = tempDiv.querySelector('.preview-box');
+                if (innerPreview) {
+                    previewBox.innerHTML = innerPreview.innerHTML;
+                } else {
+                    previewBox.innerHTML = design.previewHTML;
+                }
+            }
+            else if (design.images && design.images.length > 0) {
+                // Build preview from image data
+                design.images.forEach((imgData, index) => {
+                    const box = document.createElement('div');
+                    box.className = 'grey-box';
+                    box.dataset.index = index;
+
+                    if (imgData.type === 'customize' && imgData.customizeImages) {
+                        box.classList.add('has-content');
+
+                        // Check if this is a 2-touch layout
+                        const isTwoTouch = design.customizationType &&
+                            design.customizationType[index] === '2-touch';
+
+                        const customizeGrid = document.createElement('div');
+                        customizeGrid.className = `customize-grid ${isTwoTouch ? 'two-touch' : ''}`;
+
+                        // Determine number of spots based on touch type
+                        const spotCount = isTwoTouch ? 2 : 4;
+
+                        // Create spots for customize grid
+                        for (let i = 0; i < spotCount; i++) {
+                            const spot = document.createElement('div');
+                            spot.className = 'customize-spot';
+
+                            if (imgData.customizeImages[i]) {
+                                const img = document.createElement('img');
+                                img.src = imgData.customizeImages[i];
+                                spot.appendChild(img);
+                            } else {
+                                const plusIcon = document.createElement('div');
+                                plusIcon.className = 'plus-icon';
+                                plusIcon.textContent = '+';
+                                spot.appendChild(plusIcon);
+                            }
+                            customizeGrid.appendChild(spot);
+                        }
+                        box.appendChild(customizeGrid);
+
+                    } else if (imgData.type === 'single-accessory' && imgData.accessoryImages) {
+                        box.classList.add('has-content');
+                        const accessorySplit = document.createElement('div');
+                        accessorySplit.className = 'accessory-split';
+
+                        const leftHalf = document.createElement('div');
+                        leftHalf.className = 'accessory-half left no-border';
+                        if (imgData.accessoryImages.left) {
+                            const img = document.createElement('img');
+                            img.src = imgData.accessoryImages.left;
+                            leftHalf.appendChild(img);
+                        }
+
+                        const rightHalf = document.createElement('div');
+                        rightHalf.className = 'accessory-half right no-border';
+                        if (imgData.accessoryImages.right) {
+                            const img = document.createElement('img');
+                            img.src = imgData.accessoryImages.right;
+                            rightHalf.appendChild(img);
+                        }
+
+                        accessorySplit.appendChild(leftHalf);
+                        accessorySplit.appendChild(rightHalf);
+                        box.appendChild(accessorySplit);
+
+                    } else if (imgData.src) {
+                        // Regular image
+                        box.classList.add('has-content');
+                        const img = document.createElement('img');
+                        img.src = imgData.src;
+                        box.appendChild(img);
+                    } else {
+                        // Empty quad
+                        box.textContent = `Quad ${index + 1}`;
+                    }
+
+                    previewBox.appendChild(box);
+                });
+            }
+        }
+
+        function getImagesSummary(design) {
+            if (!design.images || design.images.length === 0) return 'None selected';
+
+            let summary = '';
+            design.images.forEach((img, index) => {
+                if (img.type === 'customize') {
+                    const count = img.customizeImages ? Object.keys(img.customizeImages).length : 0;
+                    const touchType = design.customizationType && design.customizationType[index] === '2-touch' ? '2-Touch' : '4-Touch';
+                    summary += `Quad ${index + 1}: ${touchType} (${count} icons)<br>`;
+                } else if (img.type === 'single-accessory') {
+                    const left = img.accessoryImages?.left ? 1 : 0;
+                    const right = img.accessoryImages?.right ? 1 : 0;
+                    summary += `Quad ${index + 1}: Accessory (${left + right} images)<br>`;
+                } else if (img.name) {
+                    summary += `Quad ${index + 1}: ${img.name}<br>`;
+                } else {
+                    summary += `Quad ${index + 1}: Image<br>`;
+                }
+            });
+            return summary;
+        }
+
+        function deleteDesign(id) {
+            if (confirm('Are you sure you want to delete this design?')) {
+                let allDesigns = JSON.parse(localStorage.getItem('myDesigns') || '[]');
+                allDesigns = allDesigns.filter(d => d.id !== id);
+                localStorage.setItem('myDesigns', JSON.stringify(allDesigns));
+                location.reload();
+            }
+        }
+
+        function printSingleDesign(designId) {
+            // For single design printing, we'll highlight just that card
+            const cards = document.querySelectorAll('.design-card');
+            cards.forEach(card => {
+                card.style.display = 'none';
+            });
+
+            const targetCard = document.querySelector(`[onclick*="${designId}"]`)?.closest('.design-card');
+            if (targetCard) {
+                targetCard.style.display = 'block';
+                targetCard.style.margin = '0 auto';
+            }
+
+            window.print();
+
+            // Restore all cards after printing
+            setTimeout(() => {
+                cards.forEach(card => {
+                    card.style.display = 'block';
+                });
+            }, 100);
+        }
+
+        // Enhanced save function to include in your main index.html
+        function enhancedSaveDesign() {
+            const designData = {
+                id: 'design_' + Date.now(),
+                model: document.getElementById('summary-box-model').textContent,
+                frameType: document.getElementById('summary-frame-type').textContent,
+                glassColor: document.getElementById('summary-glass-color').textContent,
+                frameColor: document.getElementById('summary-frame-color').textContent,
+                layoutClass: document.getElementById('final-preview-box').className.replace('preview-box ', ''),
+                previewHTML: document.getElementById('final-preview-box').outerHTML,
+                images: getEnhancedImageData(),
+                timestamp: new Date().toISOString()
+            };
+
+            let designs = JSON.parse(localStorage.getItem('myDesigns') || '[]');
+            designs.push(designData);
+            localStorage.setItem('myDesigns', JSON.stringify(designs));
+            alert('✅ Design saved successfully!');
+        }
+
+        // Helper function to get complete image data (add this to your main index.html)
+        function getEnhancedImageData() {
+            const images = [];
+            const quadCount = window.selectedModelData?.quadCount || 1;
+
+            for (let i = 0; i < quadCount; i++) {
+                const imgData = {
+                    quadIndex: i,
+                    type: selectedImages[i]?.id || 'empty'
+                };
+
+                if (selectedImages[i]?.id === 'customize' && customizeImages[i]) {
+                    imgData.customizeImages = customizeImages[i];
+                } else if (selectedImages[i]?.id === 'single-accessory' && accessoryImages[i]) {
+                    imgData.accessoryImages = accessoryImages[i];
+                } else if (selectedImages[i]?.src) {
+                    imgData.src = selectedImages[i].src;
+                    imgData.name = selectedImages[i].name;
+                }
+
+                images.push(imgData);
+            }
+
+            return images;
+        }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+        document.getElementById('print-btnn').addEventListener('click', function () {
+            const now = new Date();
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const year = now.getFullYear();
+
+            let hours = now.getHours();
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'pm' : 'am';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+
+            const formattedDateTime = `${day}-${month}-${year})(${hours}-${minutes}-${ampm}`;
+            const filename = `Lumi_Designs(${formattedDateTime})`;
+
+            // Set document title
+            const originalTitle = document.title;
+            document.title = filename;
+
+            // Print with a small delay to ensure title is updated
+            setTimeout(() => {
+                window.print();
+
+                // Restore original title after print dialog appears
+                setTimeout(() => {
+                    document.title = originalTitle;
+                }, 1000);
+            }, 100);
+        });
+    </script>
+</body>
+
+</html>

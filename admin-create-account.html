@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Create User Account</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .admin-container {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        max-width: 500px;
+        width: 100%;
+    }
+
+    .admin-header {
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .admin-header img {
+        margin-bottom: 15px;
+    }
+
+    .admin-header h1 {
+        color: #1e3a5f;
+        font-size: 28px;
+        margin-bottom: 10px;
+        font-weight: 600;
+    }
+
+    .admin-header p {
+        color: #666;
+        font-size: 16px;
+    }
+
+    /* Admin Login Section */
+    .admin-login {
+        margin: 30px 0;
+    }
+
+    .admin-login h3 {
+        color: #1e3a5f;
+        margin-bottom: 20px;
+        text-align: center;
+        font-size: 18px;
+    }
+
+    .admin-form {
+        margin: 30px 0;
+        display: none; /* Hidden until admin login */
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 500;
+        font-size: 14px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 14px;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+
+    .form-input:focus {
+        border-color: #1971c2;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(25, 113, 194, 0.1);
+        outline: none;
+    }
+
+    .password-strength {
+        margin-top: 5px;
+        font-size: 12px;
+        color: #666;
+    }
+
+    .admin-login-btn {
+        width: 100%;
+        padding: 14px;
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        margin-bottom: 15px;
+    }
+
+    .admin-login-btn:hover:not(:disabled) {
+        background: #c82333;
+        transform: translateY(-1px);
+    }
+
+    .create-btn {
+        width: 100%;
+        padding: 14px;
+        background: #28a745;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        margin-bottom: 15px;
+    }
+
+    .create-btn:hover:not(:disabled) {
+        background: #218838;
+        transform: translateY(-1px);
+    }
+
+    .create-btn:disabled,
+    .admin-login-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .back-btn {
+        width: 100%;
+        padding: 12px;
+        background: transparent;
+        border: 2px solid #1971c2;
+        color: #1971c2;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        margin-top: 15px;
+    }
+
+    .back-btn:hover {
+        background: #1971c2;
+        color: white;
+    }
+
+    .message {
+        padding: 12px;
+        border-radius: 8px;
+        margin: 15px 0;
+        font-size: 14px;
+        display: none;
+    }
+
+    .message.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+
+    .message.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+
+    .user-details {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        margin-top: 20px;
+        display: none;
+    }
+
+    .user-details h3 {
+        color: #1e3a5f;
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+
+    .user-details p {
+        margin: 5px 0;
+        font-size: 14px;
+        word-break: break-all;
+    }
+
+    .loading-section {
+        padding: 40px 0;
+        text-align: center;
+        display: none;
+    }
+
+    .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #e1e5e9;
+        border-top: 4px solid #1971c2;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .admin-info {
+        text-align: center;
+        margin-top: 20px;
+        padding: 15px;
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 8px;
+        color: #856404;
+        font-size: 14px;
+    }
+
+    .failed-attempts {
+        text-align: center;
+        margin-top: 15px;
+        font-size: 14px;
+        color: #dc3545;
+    }
+
+    @media (max-width: 480px) {
+        .admin-container {
+            padding: 30px 20px;
+            margin: 10px;
+        }
+
+        .admin-header h1 {
+            font-size: 24px;
+        }
+    }
+</style>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <img src="https://lumielectronics.com/wp-content/uploads/2025/09/logo-06-removebg-preview-removebg-preview.png"
+                height="40" alt="Lumi Electronics">
+            <h1>Admin Access Required</h1>
+            <p>Enter admin password to create user accounts</p>
+        </div>
+
+        <!-- Admin Login Section -->
+        <div class="admin-login" id="admin-login">
+            <h3>Admin Authentication</h3>
+            <div class="form-group">
+                <label for="admin-password">Admin Password</label>
+                <input type="password" id="admin-password" class="form-input" placeholder="Enter admin password" required>
+            </div>
+
+            <div class="message" id="admin-message"></div>
+
+            <button type="button" class="admin-login-btn" id="admin-login-btn">
+                Access Admin Panel
+            </button>
+
+            <div class="failed-attempts" id="failed-attempts" style="display: none;">
+                Failed attempts: <span id="attempt-count">0</span> | Lockout in: <span id="lockout-timer">5</span> attempts
+            </div>
+
+            <button type="button" class="back-btn" onclick="window.location.href='login.html'">
+                Back to Login
+            </button>
+        </div>
+
+        <!-- Account Creation Form (Hidden until admin login) -->
+        <form class="admin-form" id="create-account-form">
+            <h3 style="color: #1e3a5f; margin-bottom: 20px; text-align: center;">Create User Account</h3>
+            
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" class="form-input" placeholder="Enter client email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" class="form-input" placeholder="Create a password" required minlength="6">
+                <div class="password-strength">Password must be at least 6 characters long</div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirm-password">Confirm Password</label>
+                <input type="password" id="confirm-password" class="form-input" placeholder="Confirm password" required>
+            </div>
+
+            <div class="message" id="message"></div>
+
+            <button type="submit" class="create-btn" id="create-btn">
+                Create User Account
+            </button>
+
+            <button type="button" class="back-btn" id="logout-admin-btn">
+                Logout Admin
+            </button>
+
+            <button type="button" class="back-btn" onclick="window.location.href='login.html'">
+                Back to Login
+            </button>
+        </form>
+
+        <div class="loading-section" id="loading-section">
+            <div class="loading-spinner"></div>
+            <p>Creating user account...</p>
+        </div>
+
+        <div class="user-details" id="user-details">
+            <h3>Account Created Successfully!</h3>
+            <p><strong>Email:</strong> <span id="created-email"></span></p>
+            <p><strong>Password:</strong> <span id="created-password"></span></p>
+            <p><strong>Instructions:</strong> Share these credentials with the client.</p>
+        </div>
+
+        <div class="admin-info">
+            <i class="fas fa-info-circle"></i>
+            Only authorized administrators can create user accounts.
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="config.js"></script>
+    <script>
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+    </script>
+    <script src="admin-auth.js"></script>
+</body>
+</html>
