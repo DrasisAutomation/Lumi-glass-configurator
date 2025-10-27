@@ -16,7 +16,7 @@ const API_BASE_URL = 'http://43.205.185.170';
 const imageGalleries = {
     'regular': [
         { id: 3, src: './assets/regular/2.png', name: '4 Touch' },
-        { id: 1, src: './assets/regular/3.png', name: '2 Touch' },
+        { id: 1, src: './assets/regular/1.png', name: '2 Touch' },
     ],
     'customize': [
         { id: 1, src: './assets/icons/1.png', name: 'Icon 1' },
