@@ -1,39 +1,173 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Global variables
-    window.selectedImages = {};
-    window.customizeImages = {};
-    window.accessoryImages = {};
+// ========== EDIT MODE INITIALIZATION ==========
+const editDesignDataStr = sessionStorage.getItem('editDesignData');
+const isEditing = sessionStorage.getItem('isEditing') === 'true';
+const editDesignId = sessionStorage.getItem('editDesignId');
+
+// Initialize with edit data if available
+let editInitialData = {};
+if (isEditing && editDesignDataStr) {
+    try {
+        const design = JSON.parse(editDesignDataStr);
+        console.log('Edit mode activated for design:', design.id);
+        console.log('Edit data received:', design);
+        
+        editInitialData = {
+            quadCount: design.quadCount || getQuadCountFromLayout(design.layoutClass) || 1,
+            boxModel: design.model || '2 model box',
+            selectedImages: design._parsedSelectedImages || {},
+            customizeImages: design._parsedCustomizeImages || {},
+            accessoryImages: design._parsedAccessoryImages || {},
+            customizationType: design._parsedCustomizationType || {},
+            glassColor: design.glassColor || 'clear',
+            frameColor: design.frameColor || 'black'
+        };
+        
+        console.log('Parsed edit data:', editInitialData);
+        
+    } catch (error) {
+        console.error('Error parsing edit design data:', error);
+    }
+}
+
+// Helper function to extract quad count from layout class
+function getQuadCountFromLayout(layoutClass) {
+    if (!layoutClass) return 1;
+    if (layoutClass.includes('frame-1')) return 1;
+    if (layoutClass.includes('frame-2')) return 2;
+    if (layoutClass.includes('frame-3')) return 3;
+    if (layoutClass.includes('frame-6')) return 6;
+    return 1;
+}
+    
+    // ========== GLOBAL VARIABLES ==========
+    window.selectedImages = editInitialData.selectedImages || {};
+    window.customizeImages = editInitialData.customizeImages || {};
+    window.accessoryImages = editInitialData.accessoryImages || {};
     window.selectedModelData = {
-        quadCount: 1,
-        boxModel: '2 model box',
-        model: '2 model box'
+        quadCount: editInitialData.quadCount || 1,
+        boxModel: editInitialData.boxModel || '2 model box',
+        model: editInitialData.boxModel || '2 model box'
     };
-    let selectedImages = {};
+    
+    // Local variables (initialize with edit data)
+    let selectedImages = window.selectedImages;
     let currentIndex = 0;
-    let quadCount = 1;
+    let quadCount = window.selectedModelData.quadCount;
     let currentCustomizeSpot = null;
-    let customizeImages = {};
-    let selectedGlassColor = 'clear';
-    let selectedFrameColor = 'black';
+    let customizeImages = window.customizeImages;
+    let selectedGlassColor = editInitialData.glassColor || 'clear';
+    let selectedFrameColor = editInitialData.frameColor || 'black';
     let currentSection = 1;
     const totalSections = 4;
-    let boxModel = "2 model box";
-    let accessoryImages = {};
+    let boxModel = window.selectedModelData.boxModel;
+    let accessoryImages = window.accessoryImages;
     let currentAccessorySide = null;
     let currentGalleryType = 'regular';
-
+    
     // NEW: Track customization type for each quad
-    let customizationType = {}; // Stores '4-touch' or '2-touch' for each quad
+    let customizationType = editInitialData.customizationType || {}; // Stores '4-touch' or '2-touch' for each quad
 
-    // ADDED: Function to handle layout switching with confirmation
+    // ========== EDIT MODE SETUP FUNCTION ==========
+    function initializeEditMode() {
+        if (!isEditing) return;
+        
+        console.log('Setting up edit mode...');
+        
+        // 1. Select the correct layout card
+        setTimeout(() => {
+            const frameCards = document.querySelectorAll('.frame-card');
+            frameCards.forEach(card => {
+                const cardQuadCount = parseInt(card.getAttribute('data-count'));
+                if (cardQuadCount === quadCount) {
+                    // Skip confirmation for edit mode
+                    document.querySelectorAll('.frame-card').forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+                    
+                    // Update layout preview
+                    showPreview(quadCount);
+                    
+                    // Show image selection if needed
+                    if (Object.keys(selectedImages).length > 0) {
+                        checkAllImagesSelected();
+                    }
+                }
+            });
+        }, 100);
+        
+        // 2. Set glass color
+        setTimeout(() => {
+            if (selectedGlassColor) {
+                const glassCards = document.querySelectorAll('#glass-section .color-card');
+                let matched = false;
+                
+                glassCards.forEach(card => {
+                    const colorValue = card.getAttribute('data-color');
+                    const cardText = card.querySelector('p').textContent.toLowerCase();
+                    
+                    // Check for exact match or partial match
+                    if (colorValue && colorValue === selectedGlassColor) {
+                        card.click();
+                        matched = true;
+                    } else if (cardText.includes(selectedGlassColor.toLowerCase()) || 
+                               selectedGlassColor.toLowerCase().includes(cardText)) {
+                        card.click();
+                        matched = true;
+                    }
+                });
+                
+                // If custom color
+                if (!matched && selectedGlassColor.startsWith('#') || selectedGlassColor.toLowerCase().includes('custom')) {
+                    const customCard = document.querySelector('.custom-color-card');
+                    const colorPicker = document.getElementById('custom-glass-color');
+                    if (customCard && colorPicker) {
+                        // Extract hex color if possible
+                        const hexMatch = selectedGlassColor.match(/#[0-9A-Fa-f]{6}/);
+                        if (hexMatch) {
+                            colorPicker.value = hexMatch[0];
+                            selectedGlassColor = hexMatch[0];
+                        }
+                        customCard.click();
+                    }
+                }
+            }
+        }, 200);
+        
+        // 3. Set frame color
+        setTimeout(() => {
+            if (selectedFrameColor) {
+                const frameCards = document.querySelectorAll('#frame-color-section .color-card');
+                frameCards.forEach(card => {
+                    const colorValue = card.getAttribute('data-color');
+                    const cardText = card.querySelector('p').textContent.toLowerCase();
+                    
+                    if (colorValue && colorValue === selectedFrameColor) {
+                        card.click();
+                    } else if (cardText.includes(selectedFrameColor.toLowerCase()) || 
+                               selectedFrameColor.toLowerCase().includes(cardText)) {
+                        card.click();
+                    }
+                });
+            }
+        }, 300);
+        
+        // 4. Update page title to show edit mode
+        const pageTitle = document.querySelector('header h1');
+        if (pageTitle && isEditing) {
+            const originalText = pageTitle.textContent;
+            pageTitle.innerHTML = `${originalText} <span style="font-size: 14px; color: #1971c2; margin-left: 10px;">(Editing Design)</span>`;
+        }
+    }
+
+    // ========== LAYOUT SWITCHING ==========
     function handleLayoutSwitch(newCard) {
         // Check if any images have been selected
         const hasSelectedImages = Object.keys(selectedImages).length > 0 ||
             Object.keys(customizeImages).length > 0 ||
             Object.keys(accessoryImages).length > 0;
 
-        if (hasSelectedImages) {
-            // Show confirmation dialog
+        if (hasSelectedImages && !isEditing) {
+            // Show confirmation dialog only if not in edit mode
             const userConfirmed = confirm("Switching layouts will reset all your current selections. Are you sure you want to continue?");
 
             if (!userConfirmed) {
@@ -46,12 +180,22 @@ document.addEventListener('DOMContentLoaded', function () {
         newCard.classList.add('active');
         quadCount = parseInt(newCard.getAttribute('data-count'));
         boxModel = newCard.getAttribute('data-model');
+        
+        // Update global model data
+        window.selectedModelData.quadCount = quadCount;
+        window.selectedModelData.boxModel = boxModel;
+        window.selectedModelData.model = boxModel;
 
-        // Reset all images and customization data
-        selectedImages = {};
-        customizeImages = {};
-        accessoryImages = {};
-        customizationType = {}; // NEW: Reset customization types
+        // Reset all images and customization data (except in edit mode if switching to same layout)
+        if (!isEditing || parseInt(newCard.getAttribute('data-count')) !== editInitialData.quadCount) {
+            selectedImages = {};
+            customizeImages = {};
+            accessoryImages = {};
+            customizationType = {};
+            window.selectedImages = {};
+            window.customizeImages = {};
+            window.accessoryImages = {};
+        }
 
         // Hide customization options
         document.getElementById('customization-options').classList.remove('active');
@@ -62,7 +206,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return true;
     }
 
-    // Navigation functions
+    // ========== NAVIGATION FUNCTIONS ==========
     function showSection(sectionNumber) {
         document.querySelectorAll('.section').forEach(section => {
             section.classList.remove('active');
@@ -92,7 +236,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('prev-btn-3').addEventListener('click', () => showSection(2));
     document.getElementById('next-btn-3').addEventListener('click', () => showSection(4));
 
-    // Set up color selection
+    // ========== COLOR SELECTION ==========
     document.querySelectorAll('.color-card').forEach(card => {
         card.addEventListener('click', () => {
             const parentSection = card.closest('.section').id;
@@ -126,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Update summary details - CORRECTED VERSION
+    // ========== UPDATE SUMMARY ==========
     function updateSummary() {
         document.getElementById('summary-box-model').textContent = boxModel;
 
@@ -174,15 +318,19 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('summary-frame-type').textContent = frameTypeText;
 
         const activeGlassCard = document.querySelector('#glass-section .color-card.active');
-        if (activeGlassCard.classList.contains('custom-color-card')) {
-            const colorValue = document.getElementById('custom-glass-color').value;
-            document.getElementById('summary-glass-color').textContent = `Custom (${colorValue})`;
-        } else {
-            document.getElementById('summary-glass-color').textContent = activeGlassCard.querySelector('p').textContent;
+        if (activeGlassCard) {
+            if (activeGlassCard.classList.contains('custom-color-card')) {
+                const colorValue = document.getElementById('custom-glass-color').value;
+                document.getElementById('summary-glass-color').textContent = `Custom (${colorValue})`;
+            } else {
+                document.getElementById('summary-glass-color').textContent = activeGlassCard.querySelector('p').textContent;
+            }
         }
 
         const activeFrameColorCard = document.querySelector('#frame-color-section .color-card.active');
-        document.getElementById('summary-frame-color').textContent = activeFrameColorCard.querySelector('p').textContent;
+        if (activeFrameColorCard) {
+            document.getElementById('summary-frame-color').textContent = activeFrameColorCard.querySelector('p').textContent;
+        }
 
         let imageText = '';
         if (Object.keys(selectedImages).length > 0 || Object.keys(customizeImages).length > 0 || Object.keys(accessoryImages).length > 0) {
@@ -208,6 +356,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         updateFinalPreview();
     }
+
     function countCustomizeImages(quadIndex) {
         if (!customizeImages[quadIndex]) return 0;
         return Object.keys(customizeImages[quadIndex]).length;
@@ -308,12 +457,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Print functionality
+    // ========== PRINT FUNCTIONALITY ==========
     document.getElementById('print-btn').addEventListener('click', function () {
         window.print();
     });
 
-    // REPLACED: Frame card selection with confirmation
+    // ========== FRAME CARD SELECTION ==========
     document.querySelectorAll('.frame-card').forEach(card => {
         card.addEventListener('click', () => {
             // Only proceed if handleLayoutSwitch returns true (user confirmed)
@@ -321,6 +470,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // ========== PREVIEW FUNCTIONS ==========
     function showPreview(count) {
         const layoutPreview = document.querySelector('.layout-preview');
         const previewBox = document.getElementById('preview-box');
@@ -453,6 +603,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // ========== IMAGE SELECTION ==========
     function showImageSelection() {
         const imageSelection = document.getElementById('image-selection');
         const imageOptions = document.getElementById('image-options');
@@ -481,6 +632,8 @@ document.addEventListener('DOMContentLoaded', function () {
         availableImages.forEach(image => {
             const option = document.createElement('div');
             option.className = 'image-option';
+            
+            // Check if this option is currently selected
             if (selectedImages[currentIndex] && selectedImages[currentIndex].id === image.id) {
                 option.classList.add('active');
             }
@@ -522,6 +675,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (!customizationType[currentIndex]) {
                         customizationType[currentIndex] = '4-touch';
                     }
+                    
+                    // Update global variable
+                    window.selectedImages = selectedImages;
+                    window.customizeImages = customizeImages;
                 } else if (image.id === 'single-accessory') {
                     selectedImages[currentIndex] = image;
                     if (!accessoryImages[currentIndex]) {
@@ -533,6 +690,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     // Hide customization options for non-customize selections
                     document.getElementById('customization-options').classList.remove('active');
+                    
+                    // Update global variable
+                    window.selectedImages = selectedImages;
+                    window.accessoryImages = accessoryImages;
                 } else if (image.id === 'double-accessory') {
                     selectedImages[currentIndex] = image;
                     currentGalleryType = 'double-accessory';
@@ -540,6 +701,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     // Hide customization options for non-customize selections
                     document.getElementById('customization-options').classList.remove('active');
+                    
+                    // Update global variable
+                    window.selectedImages = selectedImages;
                 } else {
                     selectedImages[currentIndex] = image;
                     currentGalleryType = 'regular';
@@ -547,6 +711,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     // Hide customization options for non-customize selections
                     document.getElementById('customization-options').classList.remove('active');
+                    
+                    // Update global variable
+                    window.selectedImages = selectedImages;
                 }
                 showPreview(quadCount);
                 checkAllImagesSelected();
@@ -555,7 +722,8 @@ document.addEventListener('DOMContentLoaded', function () {
             imageOptions.appendChild(option);
         });
     }
-    // NEW: Set up touch option selection
+
+    // ========== TOUCH OPTION SELECTION ==========
     document.querySelectorAll('.touch-option').forEach(option => {
         option.addEventListener('click', function () {
             // Update active state
@@ -571,6 +739,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // ========== IMAGE MODAL ==========
     function openImageModal() {
         const modal = document.getElementById('image-modal');
         const galleryGrid = document.getElementById('gallery-grid');
@@ -633,6 +802,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     accessoryImages[quadIndex][side] = image.src;
                     currentAccessorySide = null;
+                    
+                    // Update global variable
+                    window.accessoryImages = accessoryImages;
                 } else if (currentCustomizeSpot !== null) {
                     const quadIndex = currentIndex;
                     const spotIndex = currentCustomizeSpot;
@@ -647,6 +819,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     };
 
                     currentCustomizeSpot = null;
+                    
+                    // Update global variable
+                    window.customizeImages = customizeImages;
                 } else {
                     // FIXED: Use the galleryType as the id, not the individual image id
                     selectedImages[currentIndex] = {
@@ -654,6 +829,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         src: image.src,
                         name: image.name
                     };
+                    
+                    // Update global variable
+                    window.selectedImages = selectedImages;
                 }
 
                 showPreview(quadCount);
@@ -664,6 +842,7 @@ document.addEventListener('DOMContentLoaded', function () {
             galleryGrid.appendChild(galleryItem);
         });
     }
+
     // Tab switching in modal
     document.querySelectorAll('.modal-tab').forEach(tab => {
         tab.addEventListener('click', () => {
@@ -690,7 +869,7 @@ document.addEventListener('DOMContentLoaded', function () {
         currentCustomizeSpot = null;
     });
 
-    // Upload functionality - only for customize gallery
+    // ========== UPLOAD FUNCTIONALITY ==========
     document.getElementById('upload-trigger').addEventListener('click', () => {
         document.getElementById('file-upload').click();
     });
@@ -737,6 +916,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     };
 
                     currentCustomizeSpot = null;
+                    
+                    // Update global variable
+                    window.customizeImages = customizeImages;
                 }
 
                 showPreview(quadCount);
@@ -748,10 +930,7 @@ document.addEventListener('DOMContentLoaded', function () {
         img.src = URL.createObjectURL(file);
     });
 
-    // Initialize with default frame
-    showPreview(quadCount);
-
-    // Check if all images are selected to enable the next button
+    // ========== INITIALIZATION ==========
     function checkAllImagesSelected() {
         const nextBtn1 = document.getElementById('next-btn-1');
         let allSelected = true;
@@ -775,61 +954,276 @@ document.addEventListener('DOMContentLoaded', function () {
         box.classList.add('active');
         currentIndex = parseInt(box.dataset.index);
     });
+
+    // Initialize with default frame or edit data
+    showPreview(quadCount);
+    
+    // Initialize edit mode after a short delay
+    setTimeout(() => {
+        initializeEditMode();
+    }, 500);
 });
 
-// --- Save Design Feature ---
+// ========== SAVE DESIGN FEATURE ==========
 document.getElementById('saveDesignBtn').addEventListener('click', () => {
+    // Check if we're in edit mode
+    const isEditing = sessionStorage.getItem('isEditing') === 'true';
+    const editDesignId = sessionStorage.getItem('editDesignId');
+    
+    if (isEditing && editDesignId) {
+        const userChoice = confirm("You are editing an existing design. Do you want to:\n\n• 'OK' - Update the existing design\n• 'Cancel' - Save as a new design");
+        
+        if (userChoice) {
+            // Update existing design
+            updateExistingDesign(editDesignId);
+            return;
+        }
+    }
+    
+    // Otherwise open the switch name modal
+    openSwitchNameModal();
+});
+
+function updateExistingDesign(designId) {
+    const switchName = prompt("Enter a new name/label for this updated design:", "Updated Design");
+    
+    if (!switchName) {
+        alert('Please enter a name or label for this design.');
+        return;
+    }
+    
     // Get current date and time
     const now = new Date();
-
-    // Format date as DD-MM-YYYY
     const day = String(now.getDate()).padStart(2, '0');
-    const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const month = String(now.getMonth() + 1).padStart(2, '0');
     const year = now.getFullYear();
-
-    // Format time as HH:MM-AM/PM
+    
     let hours = now.getHours();
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const ampm = hours >= 12 ? 'pm' : 'am';
     hours = hours % 12;
-    hours = hours ? hours : 12; // 0 should be 12
-
+    hours = hours ? hours : 12;
+    
     // Create the formatted file name
     const fileName = `${day}-${month}-${year}/${hours}:${minutes}-${ampm}`;
-
+    
     // Get current configuration data
     const quadCount = window.selectedModelData?.quadCount ||
         parseInt(document.querySelector('.frame-card.active')?.getAttribute('data-count') || 1);
-
-    const designData = {
-        id: 'design_' + Date.now(),
-        fileName: fileName, // Add the formatted file name
+    
+    // Get the final preview box HTML
+    const finalPreviewBox = document.getElementById('final-preview-box');
+    
+    // Create a new preview box that includes the switch name
+    const previewWithLabel = document.createElement('div');
+    previewWithLabel.className = 'preview-box ' + finalPreviewBox.className.replace('preview-box ', '');
+    previewWithLabel.innerHTML = finalPreviewBox.innerHTML;
+    
+    // Add the switch name label to the preview
+    const labelContainer = document.createElement('div');
+    labelContainer.className = 'preview-label';
+    
+    const labelTitle = document.createElement('h5');
+    labelTitle.textContent = 'Switch Label:';
+    
+    const labelText = document.createElement('div');
+    labelText.className = 'preview-label-text';
+    labelText.textContent = switchName;
+    
+    labelContainer.appendChild(labelTitle);
+    labelContainer.appendChild(labelText);
+    previewWithLabel.appendChild(labelContainer);
+    
+    // Save the updated design data
+    const updatedDesignData = {
+        id: designId,
+        fileName: fileName,
+        switchName: switchName,
         model: document.getElementById('summary-box-model').textContent,
         frameType: document.getElementById('summary-frame-type').textContent,
         glassColor: document.getElementById('summary-glass-color').textContent,
         frameColor: document.getElementById('summary-frame-color').textContent,
-        layoutClass: document.getElementById('final-preview-box').className.replace('preview-box ', ''),
-        previewHTML: document.getElementById('final-preview-box').outerHTML,
+        layoutClass: finalPreviewBox.className.replace('preview-box ', ''),
+        previewHTML: previewWithLabel.outerHTML,
+        originalPreviewHTML: finalPreviewBox.outerHTML,
         images: getEnhancedImageData(quadCount),
+        customizationType: window.customizationType || {},
         timestamp: new Date().toISOString()
     };
+    
+    let designs = JSON.parse(localStorage.getItem('myDesigns') || '[]');
+    const designIndex = designs.findIndex(d => d.id === designId);
+    
+    if (designIndex !== -1) {
+        // Update existing design
+        designs[designIndex] = updatedDesignData;
+        localStorage.setItem('myDesigns', JSON.stringify(designs));
+        
+        // Clear edit mode data
+        sessionStorage.removeItem('editDesignData');
+        sessionStorage.removeItem('isEditing');
+        sessionStorage.removeItem('editDesignId');
+        
+        alert('✅ Design updated successfully with label: "' + switchName + '"');
+        
+        // Redirect to my designs page
+        setTimeout(() => {
+            window.location.href = 'my-designs.html';
+        }, 1000);
+    } else {
+        alert('Design not found! Saving as new design.');
+        openSwitchNameModal();
+    }
+}
 
+// Function to open the switch name modal
+function openSwitchNameModal() {
+    const modal = document.getElementById('switch-name-modal');
+    const input = document.getElementById('switch-name-input');
+    const charCount = document.getElementById('char-count');
+    
+    // Reset input
+    input.value = '';
+    charCount.textContent = '0';
+    
+    // Focus on input
+    modal.classList.add('active');
+    setTimeout(() => input.focus(), 100);
+}
+
+// Close modal when clicking X
+document.querySelector('#switch-name-modal .close-modal').addEventListener('click', () => {
+    document.getElementById('switch-name-modal').classList.remove('active');
+});
+
+// Cancel button
+document.getElementById('cancel-save-btn').addEventListener('click', () => {
+    document.getElementById('switch-name-modal').classList.remove('active');
+});
+
+// Character counter for input
+document.getElementById('switch-name-input').addEventListener('input', function() {
+    const charCount = document.getElementById('char-count');
+    charCount.textContent = this.value.length;
+});
+
+// Confirm save button
+document.getElementById('confirm-save-btn').addEventListener('click', () => {
+    const switchName = document.getElementById('switch-name-input').value.trim();
+    
+    if (!switchName) {
+        alert('Please enter a name or label for this design.');
+        return;
+    }
+    
+    // Check if we're in edit mode
+    const isEditing = sessionStorage.getItem('isEditing') === 'true';
+    const editDesignId = sessionStorage.getItem('editDesignId');
+    
+    if (isEditing && editDesignId) {
+        // Save as new design while in edit mode
+        saveDesignWithLabel(switchName, true);
+    } else {
+        // Normal save
+        saveDesignWithLabel(switchName, false);
+    }
+    
+    // Close modal
+    document.getElementById('switch-name-modal').classList.remove('active');
+});
+
+// Function to save design with label
+function saveDesignWithLabel(switchName, clearEditMode = false) {
+    // Get current date and time
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    
+    let hours = now.getHours();
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    
+    // Create the formatted file name
+    const fileName = `${day}-${month}-${year}/${hours}:${minutes}-${ampm}`;
+    
+    // Get current configuration data
+    const quadCount = window.selectedModelData?.quadCount ||
+        parseInt(document.querySelector('.frame-card.active')?.getAttribute('data-count') || 1);
+    
+    // Get the final preview box HTML
+    const finalPreviewBox = document.getElementById('final-preview-box');
+    
+    // Create a new preview box that includes the switch name
+    const previewWithLabel = document.createElement('div');
+    previewWithLabel.className = 'preview-box ' + finalPreviewBox.className.replace('preview-box ', '');
+    previewWithLabel.innerHTML = finalPreviewBox.innerHTML;
+    
+    // Add the switch name label to the preview
+    const labelContainer = document.createElement('div');
+    labelContainer.className = 'preview-label';
+    
+    const labelTitle = document.createElement('h5');
+    labelTitle.textContent = 'Switch Label:';
+    
+    const labelText = document.createElement('div');
+    labelText.className = 'preview-label-text';
+    labelText.textContent = switchName;
+    
+    labelContainer.appendChild(labelTitle);
+    labelContainer.appendChild(labelText);
+    previewWithLabel.appendChild(labelContainer);
+    
+    // Save the design data
+    const designData = {
+        id: 'design_' + Date.now(),
+        fileName: fileName,
+        switchName: switchName,
+        model: document.getElementById('summary-box-model').textContent,
+        frameType: document.getElementById('summary-frame-type').textContent,
+        glassColor: document.getElementById('summary-glass-color').textContent,
+        frameColor: document.getElementById('summary-frame-color').textContent,
+        layoutClass: finalPreviewBox.className.replace('preview-box ', ''),
+        previewHTML: previewWithLabel.outerHTML,
+        originalPreviewHTML: finalPreviewBox.outerHTML,
+        images: getEnhancedImageData(quadCount),
+        customizationType: window.customizationType || {},
+        timestamp: new Date().toISOString()
+    };
+    
     let designs = JSON.parse(localStorage.getItem('myDesigns') || '[]');
     designs.push(designData);
     localStorage.setItem('myDesigns', JSON.stringify(designs));
-    alert('Configurator saved successfully! Check the gear icon ⚙️ in top right corner for your design.');
+    
+    // Clear edit mode data if needed
+    if (clearEditMode) {
+        sessionStorage.removeItem('editDesignData');
+        sessionStorage.removeItem('isEditing');
+        sessionStorage.removeItem('editDesignId');
+    }
+    
+    alert('✅ Design saved successfully with label: "' + switchName + '"');
+}
+
+// Also allow Enter key to save
+document.getElementById('switch-name-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        document.getElementById('confirm-save-btn').click();
+    }
 });
 
 // Helper function to get complete image data
 function getEnhancedImageData(quadCount) {
     const images = [];
-
+    
     for (let i = 0; i < quadCount; i++) {
         const imgData = {
             quadIndex: i,
             type: window.selectedImages?.[i]?.id || 'empty'
         };
-
+        
         if (window.selectedImages?.[i]?.id === 'customize' && window.customizeImages?.[i]) {
             imgData.customizeImages = {};
             Object.keys(window.customizeImages[i]).forEach(spotIndex => {
@@ -841,14 +1235,14 @@ function getEnhancedImageData(quadCount) {
             imgData.src = window.selectedImages[i].src;
             imgData.name = window.selectedImages[i].name;
         }
-
+        
         images.push(imgData);
     }
-
+    
     return images;
 }
 
-// --- Navigate to My Designs page ---
+// Navigate to My Designs page
 document.getElementById('myDesignsBtn').addEventListener('click', () => {
     window.location.href = 'my-designs.html';
 });
@@ -856,23 +1250,22 @@ document.getElementById('myDesignsBtn').addEventListener('click', () => {
 // Print functionality with timestamp
 document.getElementById('print-btn').addEventListener('click', function () {
     const now = new Date();
-
     const day = String(now.getDate()).padStart(2, '0');
-    const month = String(now.getMonth() + 1).padStart(2, '0'); // 0-indexed months
+    const month = String(now.getMonth() + 1).padStart(2, '0');
     const year = now.getFullYear();
-
+    
     let hours = now.getHours();
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const ampm = hours >= 12 ? 'pm' : 'am';
     hours = hours % 12;
-    hours = hours ? hours : 12; // 0 should be 12
-
+    hours = hours ? hours : 12;
+    
     // Format like "22-10-2025/12:52-pm"
     const formattedDateTime = `${day}-${month}-${year})(${hours}-${minutes}-${ampm}`;
-
+    
     // Update the document title
     document.title = `Lumi Configurator - (${formattedDateTime})`;
-
+    
     // Trigger print
     window.print();
 });

@@ -294,7 +294,35 @@
             </div>
         </div>
     </footer>
-
+<!-- Modal for Switch Name/Label -->
+<div class="modal" id="switch-name-modal">
+    <div class="modal-content" style="max-width: 500px;">
+        <div class="modal-header">
+            <h2 class="modal-title">Save Design with Label</h2>
+            <button class="close-modal">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+            <p>Enter a name or label for this design (e.g., "Living Room Switch", "Kitchen Panel"):</p>
+            
+            <div class="form-group">
+                <input type="text" 
+                       id="switch-name-input" 
+                       placeholder="Enter switch name or label"
+                       maxlength="50"
+                       class="form-input">
+                <div class="char-counter" style="text-align: right; font-size: 12px; color: #666; margin-top: 5px;">
+                    <span id="char-count">0</span>/50 characters
+                </div>
+            </div>
+            
+            <div class="modal-actions" style="display: flex; gap: 10px; margin-top: 20px;">
+                <button id="cancel-save-btn" class="nav-btn" style="background: #6c757d;">Cancel</button>
+                <button id="confirm-save-btn" class="nav-btn" style="background: #28a745;">Save Design</button>
+            </div>
+        </div>
+    </div>
+</div>
     <!-- JavaScript Files -->
     <script src="config.js"></script>
     <script>
@@ -306,6 +334,53 @@
     <script src="auth.js"></script>
     <script src="main.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script>
+    // Check if we're in edit mode
+    const isEditing = sessionStorage.getItem('isEditing') === 'true';
+    const editDesignId = sessionStorage.getItem('editDesignId');
+    
+    if (isEditing) {
+        // Show a banner indicating edit mode
+        const editBanner = document.createElement('div');
+        editBanner.id = 'edit-mode-banner';
+        editBanner.style.cssText = `
+            background: #1971c2;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            font-weight: bold;
+            position: relative;
+        `;
+        editBanner.innerHTML = `
+            <span>✏️ Editing Design</span>
+            <button id="cancel-edit" style="
+                background: #dc3545;
+                color: white;
+                border: none;
+                padding: 5px 15px;
+                border-radius: 4px;
+                cursor: pointer;
+                position: absolute;
+                right: 20px;
+                top: 50%;
+                transform: translateY(-50%);
+            ">Cancel Edit</button>
+        `;
+        
+        // Insert after header
+        document.body.insertBefore(editBanner, document.querySelector('main'));
+        
+        // Add cancel edit functionality
+        setTimeout(() => {
+            document.getElementById('cancel-edit').addEventListener('click', () => {
+                sessionStorage.removeItem('editDesignData');
+                sessionStorage.removeItem('isEditing');
+                sessionStorage.removeItem('editDesignId');
+                location.reload();
+            });
+        }, 100);
+    }
+</script>
 </body>
 
 </html>

@@ -545,6 +545,35 @@
     color: #ff0000;
     font-weight: bold;
 }
+.preview-label{
+    display: none;
+}
+.editBtn {
+    background: #1971c2;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.editBtn:hover {
+    background: #155a9c;
+}
+.actions {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 30px;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    gap: 10px;
+}
+
+.actions button {
+    flex: 1;
+}
 </style>
 </head>
 
@@ -596,7 +625,7 @@
             <div class="watermark watermark-3">LUMI</div>
 
             <div class="summary-preview">
-              <h4>Final Preview</h4>
+              <h4>${design.switchName}</h4>
               <div class="preview-container">
                 <div class="preview-box ${design.layoutClass}" id="preview-${design.id}"></div>
               </div>
@@ -605,41 +634,46 @@
             <div class="summary-details">
               <h4>Configuration Details</h4>
               <table class="summary-table">
-                <tr>
-                  <th>Configuration Item</th>
-                  <th>Selected Option</th>
-                </tr>
-                <tr>
-                  <td>Model of Box</td>
-                  <td>${design.model}</td>
-                </tr>
-                <tr>
-                  <td>Frame Type</td>
-                  <td>${design.frameType}</td>
-                </tr>
-                <tr>
-                  <td>Glass Color</td>
-                  <td>${design.glassColor}</td>
-                </tr>
-                <tr>
-                  <td>Frame Color</td>
-                  <td>${design.frameColor}</td>
-                </tr>
-                <tr>
-                  <td>Images</td>
-                  <td>${getImagesSummary(design)}</td>
-                </tr>
-                <tr>
-  <td>Date & Time</td>
-  <td>${design.fileName}</td>
-</tr>
-              </table>
+    <tr>
+        <th>Configuration Item</th>
+        <th>Selected Option</th>
+    </tr>
+    <tr>
+        <td>Model of Box</td>
+        <td>${design.model}</td>
+    </tr>
+    <tr>
+        <td>Frame Type</td>
+        <td>${design.frameType}</td>
+    </tr>
+    <tr>
+        <td>Glass Color</td>
+        <td>${design.glassColor}</td>
+    </tr>
+    <tr>
+        <td>Frame Color</td>
+        <td>${design.frameColor}</td>
+    </tr>
+    <tr>
+        <td>Switch Name/Label</td>
+        <td>${design.switchName || 'Not specified'}</td>
+    </tr>
+    <tr>
+        <td>Images</td>
+        <td>${getImagesSummary(design)}</td>
+    </tr>
+    <tr>
+        <td>Date & Time</td>
+        <td>${design.fileName}</td>
+    </tr>
+</table>
             </div>
           </div>
 
-          <div class="actions">
-            <button class="deleteBtn" onclick="deleteDesign('${design.id}')">Delete Design</button>
-          </div>
+<div class="actions">
+    <button class="editBtn" onclick="editDesign('${design.id}')">Edit Design</button>
+    <button class="deleteBtn" onclick="deleteDesign('${design.id}')">Delete Design</button>
+</div>
         `;
 
                 // Build the preview box with exact same structure as index.html
@@ -873,7 +907,101 @@
                 }, 1000);
             }, 100);
         });
-    </script>
+function editDesign(designId) {
+    const designs = JSON.parse(localStorage.getItem('myDesigns') || '[]');
+    const design = designs.find(d => d.id === designId);
+    
+    if (!design) {
+        alert('Design not found!');
+        return;
+    }
+    
+    // Parse images into the format expected by main.js
+    const selectedImages = {};
+    const customizeImages = {};
+    const accessoryImages = {};
+    const customizationType = design.customizationType || {};
+    
+    if (design.images && Array.isArray(design.images)) {
+        design.images.forEach(imgData => {
+            const quadIndex = imgData.quadIndex || 0;
+            
+            if (imgData.type === 'regular' || imgData.type === 'double-accessory') {
+                selectedImages[quadIndex] = {
+                    id: imgData.type,
+                    src: imgData.src,
+                    name: imgData.name || imgData.type
+                };
+            } else if (imgData.type === 'customize' && imgData.customizeImages) {
+                selectedImages[quadIndex] = {
+                    id: 'customize',
+                    src: './assets/img/4.png', // Default customize image
+                    name: 'Customize'
+                };
+                
+                // Convert customize images
+                customizeImages[quadIndex] = {};
+                Object.keys(imgData.customizeImages).forEach(spotIndex => {
+                    customizeImages[quadIndex][spotIndex] = {
+                        src: imgData.customizeImages[spotIndex],
+                        name: `Custom Icon ${parseInt(spotIndex) + 1}`
+                    };
+                });
+            } else if (imgData.type === 'single-accessory' && imgData.accessoryImages) {
+                selectedImages[quadIndex] = {
+                    id: 'single-accessory',
+                    src: './assets/img/3.png', // Default single accessory image
+                    name: 'Single Accessory'
+                };
+                
+                // Store accessory images
+                accessoryImages[quadIndex] = imgData.accessoryImages;
+            }
+        });
+    }
+    
+    // Store design data in sessionStorage
+    sessionStorage.setItem('editDesignData', JSON.stringify({
+        id: design.id,
+        fileName: design.fileName,
+        switchName: design.switchName,
+        model: design.model,
+        frameType: design.frameType,
+        glassColor: design.glassColor,
+        frameColor: design.frameColor,
+        layoutClass: design.layoutClass,
+        quadCount: getQuadCountFromLayout(design.layoutClass),
+        timestamp: design.timestamp,
+        
+        // Store parsed data for main.js
+        _parsedSelectedImages: selectedImages,
+        _parsedCustomizeImages: customizeImages,
+        _parsedAccessoryImages: accessoryImages,
+        _parsedCustomizationType: customizationType
+    }));
+    
+    sessionStorage.setItem('isEditing', 'true');
+    sessionStorage.setItem('editDesignId', designId);
+    
+    // Debug log
+    console.log('Edit data saved to sessionStorage:', {
+        id: design.id,
+        quadCount: getQuadCountFromLayout(design.layoutClass),
+        imagesCount: design.images ? design.images.length : 0
+    });
+    
+    // Redirect to index.html for editing
+    window.location.href = 'index.html';
+}
+// Helper function to extract quad count from layout class
+function getQuadCountFromLayout(layoutClass) {
+    if (layoutClass.includes('frame-1')) return 1;
+    if (layoutClass.includes('frame-2')) return 2;
+    if (layoutClass.includes('frame-3')) return 3;
+    if (layoutClass.includes('frame-6')) return 6;
+    return 1;
+}
+  </script>
 </body>
 
 </html>
